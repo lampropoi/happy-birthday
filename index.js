@@ -4,8 +4,9 @@ const puppeteer = require("puppeteer");
 const selectors = {
   username: "#email",
   password: "#pass",
+  loginButton: "#loginbutton",
   birthdayTextareas: ".formWrapper textarea",
-  loginButton: "#loginbutton"
+  tagArea: ".uiContextualLayerBelowLeft li"
 };
 
 (async () => {
@@ -29,6 +30,25 @@ const selectors = {
     await page.waitForNavigation();
   };
   await login();
+
+  // navigate to birthday page
+  await page.goto("https://www.facebook.com/events/birthdays/");
+  await page.waitForSelector(selectors.birthdayTextareas);
+
+  const result = await page.evaluate(() => {
+    try {
+      const name = document.querySelector("#birthdays_today_card ~div a").title;
+      return name;
+    } catch (err) {
+      console.log(err);
+    }
+  });
+  await page.type(
+    "#birthdays_today_card ~div textarea",
+    `Happy Birthday ${result}!!! Wish you the best :)`
+  );
+
+  await page.keyboard.press("Enter");
 
   await browser.close();
 })();
