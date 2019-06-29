@@ -1,0 +1,14 @@
+{
+  "name": "happy-birthday",
+  "version": "1.0.0",
+  "description": "A project to make your friends happy",
+  "main": "index.js",
+  "author": "Ioanna Lampropoulou",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^1.18.1"
+  },
+  "devDependencies": {
+    "prettier": "1.18.2"
+  }
+}
