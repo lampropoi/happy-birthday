@@ -1,14 +1,6 @@
 const settings = require("./settings");
 const puppeteer = require("puppeteer");
 
-const selectors = {
-  username: "#email",
-  password: "#pass",
-  loginButton: "#loginbutton",
-  birthdayTextareas: ".formWrapper textarea",
-  tagArea: ".uiContextualLayerBelowLeft li"
-};
-
 (async () => {
   const browser = await puppeteer.launch({
     headless: false,
@@ -24,35 +16,42 @@ const selectors = {
     await page.goto("https://facebook.com", {
       waitUntil: "networkidle2"
     });
-    await page.waitForSelector(selectors.username);
-    await page.type(selectors.username, settings.username);
+    await page.waitForSelector("#email");
+    await page.type("#email", settings.username, {
+      delay: 100
+    });
 
-    await page.type(selectors.password, settings.password);
+    await page.type("#pass", settings.password, {
+      delay: 100
+    });
 
-    await page.click(selectors.loginButton);
+    await page.click("#loginbutton");
 
     await page.waitForNavigation();
   };
   await login();
 
-  // navigate to birthday page
   await page.goto("https://www.facebook.com/events/birthdays/");
-  await page.waitForSelector(selectors.birthdayTextareas);
+  await page.waitForSelector(".formWrapper textarea");
 
-  const result = await page.evaluate(() => {
-    try {
-      const name = document.querySelector("#birthdays_today_card ~div a").title;
-      return name;
-    } catch (err) {
-      console.log(err);
+  const elements = await page.$$("#birthdays_today_card ~div li");
+  for (const element of elements) {
+    const name = await element.$("a");
+    const nameText = await page.evaluate(name => name.innerText, name);
+    const textarea = await element.$("textarea");
+    if (textarea) {
+      await textarea.type(`Happy Birthday @${nameText}`, {
+        delay: 100
+      });
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+      await textarea.type("!!! Wish you the best :)", {
+        delay: 100
+      });
     }
-  });
-  await page.type(
-    "#birthdays_today_card ~div textarea",
-    `Happy Birthday ${result}!!! Wish you the best :)`
-  );
+  }
 
-  await page.keyboard.press("Enter");
-
-  await browser.close();
+  // await page.keyboard.press("Enter");
+  //
+  // await browser.close();
 })();
