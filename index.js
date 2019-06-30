@@ -12,9 +12,13 @@ const selectors = {
 (async () => {
   const browser = await puppeteer.launch({
     headless: false,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--window-size=1280,800"]
   });
   const page = await browser.newPage();
+  await page.setViewport({
+    width: 1280,
+    height: 800
+  });
   let login = async () => {
     // login
     await page.goto("https://facebook.com", {
